@@ -1,5 +1,6 @@
 import pandas as pd 
 import numpy as np
+import seaborn as sns
 import os
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
@@ -17,20 +18,22 @@ Data Specifications:
     
 NOTE:    
       1.    Time Stamp Standardised to UTC
-      2.    Total number of rows: 2628000
 ''' 
+#------------------------------------------------------------------------------
 
 # Specify input File ( "ASX", "FTSE" , "S&P")
 input = "S&P"
 
 #Input Number of Rows (10% of data ( 6 months ) approx. 100,000 rows)
-nr = 75000
+nr = 150000
 
 # Start Analysis after N rows (1 Trading year approx 250K rows)
-skip=0
+skip = 0
 
 # Test vs. Train Split  - 0.2 represents 20% Train - 80% Test
-test = 0.2
+test = 0.8
+
+#------------------------------------------------------------------------------
 
 if(input == "ASX"):
     data=pd.read_csv(r'C:\Users\lenno\OneDrive\Desktop\IndexFutures\ContractFutures_1min_uic9046.csv', nrows=nr, skiprows=skip)
@@ -151,8 +154,10 @@ dataset = dataset[np.isfinite(dataset).all(1)]
 # Create the dataset with independent variables (X) and dependent variable y
 
 X = dataset[["Lag1","Lag2","VolumeChange"]]
+X
 
 y = dataset["Direction"]
+y
 
 print("Training vs. Testing Split Selected: \n \n", "{:.0%}".format(test),"vs.","{:.0%}".format(1-test),"\n")
 data_split = int(nr*test)
@@ -166,7 +171,7 @@ y_test = y[y.index > data_split]
 print("Hit Rates/Confusion Matrices:\n")
 models = [("LR", LogisticRegression()),
               ("LDA", LDA()),
-              #("LSVC", LinearSVC(max_iter=7600)),
+              #("LSVC", LinearSVC(max_iter=10000)),
               ("RSVM", SVC(
                       C=1000000.0, cache_size=200, class_weight=None,
                       coef0=0.0, degree=3, gamma=0.0001, kernel='rbf',
@@ -194,7 +199,32 @@ for m in models:
     pred = m[1].predict(X_test)
     
     # Output the hit-rate and the confusion matrix for each model
- 
+    
     print("%s:\n%0.3f" % (m[0], m[1].score(X_test, y_test)))
     
     print("%s\n" % confusion_matrix(pred, y_test))
+    
+    #Create HeatMaps from confusion_matrix(pred, y_test)
+    
+    cm = confusion_matrix(pred, y_test)
+    
+    group_names = ['TN','FP','FN', 'TP']
+
+    group_counts = ["{0:0.0f}".format(value) for value in
+
+                cm.flatten()]
+    
+    group_percentages = ["{0:.2%}".format(value) for value in
+
+                      cm.flatten()/np.sum(cm)]
+    
+    labels = [f"{v1}\n{v2}\n{v3}" for v1, v2, v3 in
+
+          zip(group_names,group_counts,group_percentages)]
+    
+    labels = np.asarray(labels).reshape(2,2)
+    
+    fig = sns.heatmap(cm, fmt='', annot=labels, cmap='Blues')
+    fig.figure.savefig(("value{m}.png".format(m=m)))
+    fig.figure.clf()
+       
