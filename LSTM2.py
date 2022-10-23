@@ -6,7 +6,7 @@ from tensorflow.keras.layers import LSTM
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 from keras.layers import Dense
-# from keras.layers import LSTM
+
 
 
 
@@ -50,7 +50,6 @@ def windowed_df_to_date_X_y(windowed_dataframe):
 
   Y = df_as_np[:, -1]
   
-  print(dates.shape, X.shape, Y.shape)
   return dates, X.astype(np.float32), Y.astype(np.float32)
 
 
@@ -71,11 +70,12 @@ def main(start,end):
     #Plots a line graph of close price
     plt.plot(df.index, df['Close'], color = "black")
     plt.rcParams['figure.figsize'] = (15,8)
-    plt.xlabel("Date/Time")
+    plt.xlabel("Date-Time")
     plt.ylabel("Close Price ($)")
     plt.title("Plot of Close Price")
     plt.show()
     plt.close()
+    
     #Creates a Windowed Dataframe of the dates
     rdf = df_to_windowed_df(df, 3, length)
     #Splits the data into Training, Testing and Validation
@@ -112,16 +112,16 @@ def main(start,end):
     
     loss_per_epoch = model.history.history['val_mean_absolute_error']
     plt.plot(range(len(loss_per_epoch)),loss_per_epoch)
-    plt.xlabel = ("EPOCHS")
-    plt.ylabel = ("Mean Absolute Error")
+    plt.xlabel("EPOCHS")
+    plt.ylabel("Mean Absolute Error")
     plt.title("MAE for model fitting")
     plt.show()
     plt.close()
    
     #Plots for Observations vs Predictions
     train_predictions = model.predict(X_train).flatten()
-    plt.plot(dates_train, train_predictions)
     plt.plot(dates_train, y_train)
+    plt.plot(dates_train, train_predictions, label = '--')
     plt.rcParams['figure.figsize'] = (15,8)
     plt.title("Training Observations vs Training Predictions")
     plt.xlabel("Date/Time")
@@ -132,8 +132,8 @@ def main(start,end):
     
     val_predictions = model.predict(X_val).flatten()
     plt.title("Validation Observations vs Validation Predicitons")
-    plt.plot(dates_val, val_predictions)
     plt.plot(dates_val, y_val)
+    plt.plot(dates_val, val_predictions, label = '--')
     plt.legend(['Validation Predictions', 'Validation Observations'])
     plt.show()
     plt.close()
@@ -146,8 +146,8 @@ def main(start,end):
     plt.show()
     plt.close()
     
-    plt.plot(dates_train, train_predictions)
     plt.plot(dates_train, y_train)
+    plt.plot(dates_train, train_predictions, linestyle = '--')
     plt.plot(dates_val, val_predictions)
     plt.title("Observations vs Predicitons")
     plt.plot(dates_val, y_val)
@@ -161,9 +161,16 @@ def main(start,end):
                 'Testing Observations'])
     plt.show()
     plt.close()
+    
+    OvP = pd.DataFrame()
+    for x in range(len(dates_test)):
+        OvP = OvP.append({"Time": dates_test[x], "Observations":y_train[x], "Predictions":test_predictions[x]}, ignore_index = True)
+    print(OvP.head())
+    print(OvP.tail())
 
 # 525600 minutes in a year
+# 0 - 525600 use EPOCHS as 70
 # Smallest Input - Index 0 is 2016-12-30T02:34:00.000000Z
 # Max Input - Index 1947599 2022-08-01T02:18:00.000000Z
 
-main(0,525600)
+main(0,10000)
