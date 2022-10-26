@@ -107,7 +107,7 @@ def main(start,end):
     model.add(Dense(1))
     model.compile(loss='mse',  optimizer=Adam(learning_rate=0.001), metrics=['mean_absolute_error'])
     # Notes: Epochs = number of iterations, 
-    model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=100)
+    model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=350)
    
     
     loss_per_epoch = model.history.history['val_mean_absolute_error']
@@ -167,10 +167,15 @@ def main(start,end):
         OvP = OvP.append({"Time": dates_test[x], "Observations":y_train[x], "Predictions":test_predictions[x]}, ignore_index = True)
     print(OvP.head())
     print(OvP.tail())
+    
 
-# 525600 minutes in a year
-# 0 - 525600 use EPOCHS as 70
+
+#0 - #1148 = 2016
+#1149 - #343589 = 2017
+#343590  - #691599 = 2018
+#691600 - #1040325 = 2019
+#1040326 - 2020 onwards
 # Smallest Input - Index 0 is 2016-12-30T02:34:00.000000Z
 # Max Input - Index 1947599 2022-08-01T02:18:00.000000Z
 
-main(0,10000)
+main(0,343589)
