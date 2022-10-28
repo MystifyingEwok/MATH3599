@@ -57,7 +57,7 @@ print('Critical Values:')
 for key, value in STest[4].items():
   print('\t%s: %.3f' % (key, value))
 
-
+pred_matrix
 
     
 #Do the Graphs on Differenced Data, therefore can make claims about this 'differencing' vs absolute prices

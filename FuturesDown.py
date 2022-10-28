@@ -1,5 +1,19 @@
 # -*- coding: utf-8 -*-
 """
+Created on Sun Oct 16 15:22:24 2022
+
+@author: Will Pc
+"""
+
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Oct 16 13:00:50 2022
+
+@author: Will Pc
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Wed Oct 12 01:31:08 2022
 
 @author: Will Pc
@@ -29,24 +43,30 @@ DF= []
 Files = [r'C:\Users\Will Pc\iCloudDrive\Math\Math3599\IndexFutures\ContractFutures_1min_uic4039.csv', r'C:\Users\Will Pc\iCloudDrive\Math\Math3599\IndexFutures\ContractFutures_1min_uic4044.csv', r'C:\Users\Will Pc\iCloudDrive\Math\Math3599\IndexFutures\ContractFutures_1min_uic9046.csv']
 fl = len(Files)
 for i in range(fl):
+#Importing and manipulating the datafiles 
     Data_df = pd.read_csv(Files[i])
     Data_df['Time']= pd.to_datetime(Data_df['Time'])
     Data_df['Time'] = Data_df['Time'].dt.time
     Data_df.set_index("Time", inplace=True) #sets the index of the dataframe by date 
-    X = round(0.2* len(Data_df['Close']))
+    
+    #Using 20% of the file Size
+    X = round(0.05* len(Data_df['Close']))
     Data_df = Data_df.tail(X)
-     #Data_df = pd.read_csv(r'C:\Users\Will Pc\iCloudDrive\Math\Math3599\Test2.csv')
+    #Data_df = pd.read_csv(r'C:\Users\Will Pc\iCloudDrive\Math\Math3599\Test2.csv')
     Headers = list(Data_df)#Extracts the headers from the dataframe
      #Removes the null columns
      #Data_df.drop(['bid_volume', 'bid_average','bid_barCount', 'ask_volume', 'ask_average','ask_barCount'], axis =1, inplace=True)
     Data_df.drop('Unnamed: 0', axis = 1, inplace = True)
+    #Extracts the Closing Price Column 
     data = Data_df[["Close"]]
+    #This will also be the data we compare our results to.
     data = data.rename(columns = {'Close':'Actual_Close'})
     
     
     
     #This identifies if the price went up or down
-    data["Target"] = Data_df.rolling(2).apply(lambda x: x.iloc[1] > x.iloc[0])["Close"]
+    #data["Target"] = Data_df.rolling(2).apply(lambda x: x.iloc[1] > x.iloc[0])["Close"]
+    data["Target"] = Data_df.rolling(2).apply(lambda x: x.iloc[1] < x.iloc[0])["Close"]
     
     
     
